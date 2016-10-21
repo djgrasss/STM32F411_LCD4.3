@@ -1,0 +1,12 @@
+
+env = DefaultEnvironment()
+
+target = 'main'
+sources = [Glob('*.c')]
+
+elf=env.Program(target=target,source=sources)
+
+# Custom clean action to remove lst files
+Clean([elf], Glob('*.lst'))
+
+Return('elf')
