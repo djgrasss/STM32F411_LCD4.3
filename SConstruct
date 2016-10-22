@@ -22,7 +22,7 @@ env['CPPPATH'] = [
     ]
 
 # compiler flags
-env.Append(CCFLAGS = [
+env['CCFLAGS'] = [
     '-mcpu=cortex-m4',
     '-mthumb',
     '-O2',
@@ -32,32 +32,30 @@ env.Append(CCFLAGS = [
     '-std=gnu11',
     '-fmessage-length=0',
     '-mthumb-interwork',
-    ])
+    ]
 
 # compiler flags
-env.Append(ASFLAGS = [
+env['ASFLAGS'] = [
     '-mcpu=cortex-m4',
     '-mthumb',
-    ])
+    ]
 
 # linker flags
-env.Append(LINKFLAGS = [
-    "-mthumb",
-    "-mcpu=cortex-m4",
-    "-mfpu=fpv4-sp-d16",
-    "-mfloat-abi=softfp",
-    "-specs=nano.specs",
-    "-TSTM32F411RETx_FLASH.ld",
-    "-lc",
-    "-lm",
-    "-lnosys",
-    "-Wl,--gc-sections",
-    ])
+env['LINKFLAGS'] = [
+    '-mthumb',
+    '-mcpu=cortex-m4',
+    '-mfpu=fpv4-sp-d16',
+    '-mfloat-abi=softfp',
+    '-specs=nano.specs',
+    '-TSTM32F411RETx_FLASH.ld',
+    '-lc',
+    '-lm',
+    '-lnosys',
+    '-Wl,--gc-sections',
+    ]
 
 # defines
-env.Append(CPPDEFINES = [
-    'STM32F411xE',
-])
+env['CPPDEFINES'] = ['STM32F411xE']
 
 # elf = SConscript('src/SConscript', variant_dir='build', duplicate=0)
 
