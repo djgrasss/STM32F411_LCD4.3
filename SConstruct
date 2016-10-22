@@ -86,17 +86,11 @@ elf = env.Program(
     ]
 )
 
-
 # binary file builder
-objbuilder = Builder(action = '$OBJCOPY -O binary $SOURCE $TARGET',suffix='.bin', src_suffix='.elf')
-env.Append(BUILDERS = {'Objcopy' : objbuilder})
+hex=env.Command('main.hex',elf,'$OBJCOPY -O ihex -R .eeprom -R .fuse -R .lock $SOURCE $TARGET')
+bin=env.Command('main.bin',elf,'$OBJCOPY -O binary -R .eeprom -R .fuse -R .lock $SOURCE $TARGET')
 
-bin = env.Objcopy('main',elf)
-
-# hex=env.Command('main.hex','build/main.elf','avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock $SOURCE $TARGET')
-# bin=env.Command('main.bin','build/main.elf','avr-objcopy -O binary -R .eeprom -R .fuse -R .lock $SOURCE $TARGET')
-
-# Default(hex, bin)
+Default(hex, bin)
 
 # env.Command('programbin',bin,'avrdude -p atmega32u4 -P usb -c avrispv2 -U flash:w:$SOURCE')
 # env.Command('programhex',hex,'avrdude -p atmega32u4 -P usb -c avrispv2 -U flash:w:$SOURCE')
