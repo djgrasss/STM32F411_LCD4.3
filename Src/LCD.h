@@ -1,54 +1,49 @@
 
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include <util/delay.h>
-#include <compat/deprecated.h>
-
-
 // For Adafruit's ATMega32u4 Breakout Board
 // we use the following ports:
 
-// Port B0:B7  ->    LCD_DB0:LCD_DB7
-// Port D0:D7  ->    LCD_DB8:LCD_DB15
+// Port A0:A7  ->    LCD_DB0:LCD_DB7
+// Port C0:C7  ->    LCD_DB8:LCD_DB15
 
-// Port F0     ->    LCD_RST
-// Port F4     ->    LCD_RS
-// Port F5     ->    LCD_WR
-// Port F6     ->    LCD_RD
-// Port F7     ->    LCD_CS
+// Port B4     ->    LCD_RST
+// Port B5     ->    LCD_RS
+// Port B6     ->    LCD_WR
+// Port B7     ->    LCD_RD
+// Port B8     ->    LCD_CS
 
+#include "gpio.h"
 
-#define LCD_LDATA_PORT PORTB
-#define LCD_HDATA_PORT PORTD
+#define LCD_LDATA_PORT (GPIOA->ODR)
+#define LCD_HDATA_PORT (GPIOC->ODR)
 
-#define LCD_RST_PORT PORTF
-#define LCD_RST   0
+#define LCD_RST_PORT LCD_RST_GPIO_Port
+#define LCD_RST   	 LCD_RST_Pin
 
-#define LCD_RS_PORT  PORTF
-#define LCD_RS    4
+#define LCD_RS_PORT  LCD_RS_GPIO_Port
+#define LCD_RS    	 LCD_RS_Pin
 
-#define LCD_WR_PORT  PORTF
-#define LCD_WR    5
+#define LCD_WR_PORT  LCD_WR_GPIO_Port
+#define LCD_WR    	 LCD_WR_Pin
 
-#define LCD_RD_PORT  PORTF
-#define LCD_RD    6
+#define LCD_RD_PORT  LCD_RD_GPIO_Port
+#define LCD_RD    	 LCD_RD_Pin
 
-#define LCD_CS_PORT  PORTF
-#define LCD_CS    7
+#define LCD_CS_PORT  LCD_CS_GPIO_Port
+#define LCD_CS    	 LCD_CS_Pin
 
 // Macros for setting and clearing ports
+#define sbi(PORT, PIN) HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_SET);
+#define cbi(PORT, PIN) HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_RESET);
+// #define cbi(PORT, BIT) (PORT)->BSRR=(uint32_t)BIT << 16U;
+// #define sbi(PORT, BIT) (PORT)->BSRR=(uint32_t)BIT;
 
 #define swap(type, i, j) {type t = i; i = j; j = t;}
 
-#define cport(port, data) port &= data
-#define sport(port, data) port |= data
+#define pulse_low(PORT, BIT) cbi(PORT, BIT); _delay_ms(1); sbi(PORT, BIT);
 
-#define pulse_low(PORT, BIT) cbi(PORT, BIT); sbi(PORT, BIT);
+// #define fontbyte(x) pgm_read_byte(&current_font.font[x])
 
-#define fontbyte(x) pgm_read_byte(&current_font.font[x])
+#define _delay_ms(DELAY)   HAL_Delay(DELAY);
 
 #define LEFT 0
 #define RIGHT 9999
@@ -124,13 +119,13 @@ void setColor(uint16_t color);
 void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 void drawHLine(uint16_t x, uint16_t y, uint16_t l);
 void drawVLine(uint16_t x, uint16_t y, uint16_t l);
-void setCharXY(uint16_t x, uint16_t y);
-int putChar(char c, FILE *stream);
-void printChar(char c, uint16_t x, uint16_t y);
-void setFont(uint8_t *font);
-void print(char *st, uint16_t x, uint16_t y);
-void print_P(uint_farptr_t st, uint16_t x, uint16_t y);
+// void setCharXY(uint16_t x, uint16_t y);
+// int putChar(char c, FILE *stream);
+// void printChar(char c, uint16_t x, uint16_t y);
+// void setFont(uint8_t *font);
+// void print(char *st, uint16_t x, uint16_t y);
+// void print_P(uint_farptr_t st, uint16_t x, uint16_t y);
 void invertScreen(void);
 void setScrollArea(uint16_t y, uint16_t height);
 void setScrollPosition(uint16_t scrollPosition);
-void printNumI(uint32_t num, uint16_t x, uint16_t y, uint16_t length, char filler);
+// void printNumI(uint32_t num, uint16_t x, uint16_t y, uint16_t length, char filler);

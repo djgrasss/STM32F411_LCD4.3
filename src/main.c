@@ -36,7 +36,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "LCD.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -79,15 +79,54 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
 
+  for(uint8_t x = 0; x<100; x++)
+  {
+    HAL_GPIO_TogglePin(LCD_DB5_GPIO_Port, LCD_DB5_Pin);
+    HAL_Delay(50);
+  }
+
+   orientation=LANDSCAPE;
+
+   UTFT_init();
+
+   UTFT_initLCD(orientation);
+   setFrontColor(0, 0, 0);
+   setBackColor(255, 255, 255);
+
+   uint16_t colors[] = {
+      VGA_BLACK,
+      VGA_WHITE,
+      VGA_RED,
+      VGA_GREEN,
+      VGA_BLUE,
+      VGA_SILVER,
+      VGA_GRAY,
+      VGA_MAROON,
+      VGA_YELLOW,
+      VGA_OLIVE,
+      VGA_LIME,
+      VGA_AQUA,
+      VGA_TEAL,
+      VGA_NAVY,
+      VGA_FUCHSIA,
+      VGA_PURPLE,
+   };
   /* USER CODE END 2 */
+
+   uint16_t color = 0;
+   while(1)
+   {
+      for (color = 0; color < sizeof(colors)/sizeof(colors[0]); color++)
+      {
+         fillScreen(colors[color]);
+         _delay_ms(2000);
+      }
+   }
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-    HAL_Delay(50);
-
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -118,9 +157,9 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 84;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLM = 16;
+  RCC_OscInitStruct.PLL.PLLN = 336;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
