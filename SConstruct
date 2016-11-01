@@ -44,8 +44,9 @@ env['ASFLAGS'] = [
 env['LINKFLAGS'] = [
     '-mthumb',
     '-mcpu=cortex-m4',
-    '-mfpu=fpv4-sp-d16',
-    '-mfloat-abi=softfp',
+    # no support for FPU yet
+    # '-mfpu=fpv4-sp-d16',
+    # '-mfloat-abi=softfp',
     '-specs=nano.specs',
     '-TSTM32F411RETx_FLASH.ld',
     '-lc',

@@ -3,17 +3,18 @@
 
 void set_direction_registers(void)
 {
-//    DDRB = 0xFF;   // All pins are outputs				- 1111 1111
-//    DDRD = 0xFF;   // All pins are outputs				- 1111 1111
-//    DDRF |= 0xF1;  // Bits 0, 4, 5, 6 and 7 are outputs	- 1111 xxx1
+	// DDRB = 0xFF;   // All pins are outputs				- 1111 1111
+	// DDRD = 0xFF;   // All pins are outputs				- 1111 1111
+	// DDRF |= 0xF1;  // Bits 0, 4, 5, 6 and 7 are outputs	- 1111 xxx1
 }
 
 void LCD_Write_Bus(uint8_t VH,uint8_t VL)
 {
-   // Set the Data on the pins
-   LCD_HDATA_PORT = VH;
-   LCD_LDATA_PORT = VL;
-   pulse_low(LCD_WR_PORT, LCD_WR);
+	// Set the Data on the pins
+	// LCD_HDATA_PORT = VH;
+	// LCD_LDATA_PORT = VL;
+	LCD_DATA_PORT = ((uint16_t)(VH<<8)|(uint16_t)(VL));
+	pulse_low(LCD_WR_PORT, LCD_WR);
 }
 
 void LCD_Write_COM(uint8_t VL)
@@ -24,41 +25,41 @@ void LCD_Write_COM(uint8_t VL)
 
 void LCD_Write_DATA_HL(uint8_t VH, uint8_t VL)
 {
-   sbi(LCD_RS_PORT, LCD_RS);
-   LCD_Write_Bus(VH, VL);
+	sbi(LCD_RS_PORT, LCD_RS);
+	LCD_Write_Bus(VH, VL);
 }
 
 void LCD_Write_DATA(uint8_t VL)
 {
-   sbi(LCD_RS_PORT, LCD_RS);
-   LCD_Write_Bus(0x00,VL);
+	sbi(LCD_RS_PORT, LCD_RS);
+	LCD_Write_Bus(0x00,VL);
 }
 
 void LCD_Write_COM_DATA(uint8_t com1, uint16_t dat1)
 {
-   LCD_Write_COM(com1);
-   LCD_Write_DATA_HL(dat1>>8,dat1);
+	LCD_Write_COM(com1);
+	LCD_Write_DATA_HL(dat1>>8,dat1);
 }
 
 void UTFT_init()
 {
-   disp_x_size =			271;  // max width
-   disp_y_size =			479;  // max height
-   display_transfer_mode =	16;   // transfer mode (16 bits, not latched)
-   // display_model =			model;   // TFT01_32WD
+	disp_x_size =			271;  // max width
+	disp_y_size =			479;  // max height
+	display_transfer_mode =	16;   // transfer mode (16 bits, not latched)
+	// display_model =			model;   // TFT01_32WD
 
-   set_direction_registers();
+	set_direction_registers();
 }
 
 void UTFT_initLCD(uint8_t orientationation)
 {
-   orientationation = orientationation;
-   inverted = 0;
+	orientationation = orientationation;
+	inverted = 0;
 
-   // We need to set the RD line, this is active low
-   sbi(LCD_RD_PORT, LCD_RD);
+	// We need to set the RD line, this is active low
+	sbi(LCD_RD_PORT, LCD_RD);
 
-   // Reset the LCD
+	// Reset the LCD
 	sbi(LCD_RST_PORT, LCD_RST);
 	_delay_ms(5);
 	cbi(LCD_RST_PORT, LCD_RST);
@@ -68,7 +69,7 @@ void UTFT_initLCD(uint8_t orientationation)
 
 	cbi(LCD_CS_PORT, LCD_CS);
 
-   #include "ssd1963/initlcd.h"
+	#include "ssd1963/initlcd.h"
 
 	sbi(LCD_CS_PORT, LCD_CS);
 
@@ -119,8 +120,8 @@ void clrScr()
 {
 	cbi(LCD_CS_PORT, LCD_CS);
 	clrXY();
-    sbi(LCD_RS_PORT, LCD_RS);
-    fast_fill_16(0, 0, (uint32_t)((uint32_t)(disp_x_size+1)*(uint32_t)(disp_y_size+1)));
+	sbi(LCD_RS_PORT, LCD_RS);
+	fast_fill_16(0, 0, (uint32_t)((uint32_t)(disp_x_size+1)*(uint32_t)(disp_y_size+1)));
 	sbi(LCD_CS_PORT, LCD_CS);
 }
 
@@ -139,8 +140,8 @@ void fillScreen(uint16_t color)
 
 	cbi(LCD_CS_PORT, LCD_CS);
 	clrXY();
-   sbi(LCD_RS_PORT, LCD_RS);
-   fast_fill_16(ch, cl, (uint32_t)((uint32_t)(disp_x_size+1)*(uint32_t)(disp_y_size+1)));
+	sbi(LCD_RS_PORT, LCD_RS);
+	fast_fill_16(ch, cl, (uint32_t)((uint32_t)(disp_x_size+1)*(uint32_t)(disp_y_size+1)));
 	sbi(LCD_CS_PORT, LCD_CS);
 }
 
@@ -148,8 +149,9 @@ void fast_fill_16(uint8_t ch, uint8_t cl, uint32_t pix)
 {
 	uint32_t blocks;
 
-   LCD_HDATA_PORT = ch;
-   LCD_LDATA_PORT = cl;
+	// LCD_HDATA_PORT = ch;
+	// LCD_LDATA_PORT = cl;
+	LCD_DATA_PORT = ((uint16_t)(ch<<8)|(uint16_t)(cl));
 
 	blocks = pix>>4;
 	for (uint32_t i=0; i<blocks; i++)
@@ -221,7 +223,7 @@ void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 		uint8_t ystep =  y2 > y1 ? 1 : -1;
 		uint16_t col = x1, row = y1;
 
-      cbi(LCD_CS_PORT, LCD_CS);
+		cbi(LCD_CS_PORT, LCD_CS);
 		if (dx < dy)
 		{
 			uint16_t t = - (dy >> 1);
@@ -236,7 +238,7 @@ void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 				if (t >= 0)
 				{
 					col += xstep;
-					t   -= dy;
+					t -= dy;
 				}
 			}
 		}
@@ -254,7 +256,7 @@ void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 				if (t >= 0)
 				{
 					row += ystep;
-					t   -= dx;
+					t -= dx;
 				}
 			}
 		}
@@ -272,8 +274,8 @@ void drawHLine(uint16_t x, uint16_t y, uint16_t l)
 	}
 	cbi(LCD_CS_PORT, LCD_CS);
 	setXY(x, y, x+l, y);
-   sbi(LCD_RS_PORT, LCD_RS);
-   fast_fill_16(fch,fcl,l);
+	sbi(LCD_RS_PORT, LCD_RS);
+	fast_fill_16(fch,fcl,l);
 	sbi(LCD_CS_PORT, LCD_CS);
 	clrXY();
 }
@@ -287,19 +289,19 @@ void drawVLine(uint16_t x, uint16_t y, uint16_t l)
 	}
 	cbi(LCD_CS_PORT, LCD_CS);
 	setXY(x, y, x, y+l);
-   sbi(LCD_RS_PORT, LCD_RS);
-   fast_fill_16(fch,fcl,l);
+	sbi(LCD_RS_PORT, LCD_RS);
+	fast_fill_16(fch,fcl,l);
 	sbi(LCD_CS_PORT, LCD_CS);
 	clrXY();
 }
 
-// void setCharXY(uint16_t x, uint16_t y)
-// {
-//    putChar_x = x;
-//    putChar_y = y;
-// }
+void setCharXY(uint16_t x, uint16_t y)
+{
+	putChar_x = x;
+	putChar_y = y;
+}
 
-// int putChar(char c, FILE *stream)
+// int putChar(char c)
 // {
 // 	uint8_t i,ch;
 // 	uint16_t j;
@@ -545,16 +547,16 @@ void invertScreen(void)
 
 void setScrollArea(uint16_t y, uint16_t height)
 {
-   uint16_t bfa=272-height-y;
+	uint16_t bfa=272-height-y;
 
-   cbi(LCD_CS_PORT, LCD_CS);
-   LCD_Write_COM(0x33);
-   LCD_Write_DATA(y >> 8);
-   LCD_Write_DATA(y & 0xff);
-   LCD_Write_DATA(height >> 8);
-   LCD_Write_DATA(height & 0xff);
-   LCD_Write_DATA(bfa >> 8);
-   LCD_Write_DATA(bfa & 0xff);
+	cbi(LCD_CS_PORT, LCD_CS);
+	LCD_Write_COM(0x33);
+	LCD_Write_DATA(y >> 8);
+	LCD_Write_DATA(y & 0xff);
+	LCD_Write_DATA(height >> 8);
+	LCD_Write_DATA(height & 0xff);
+	LCD_Write_DATA(bfa >> 8);
+	LCD_Write_DATA(bfa & 0xff);
 	sbi(LCD_CS_PORT, LCD_CS);
 }
 
@@ -570,10 +572,10 @@ void setScrollPosition(uint16_t scrollPosition)
    // if(scrollPosition>0)
       // scrollPosition=TPanelTraits::SHORT_SIDE-scrollPosition;
 
-   cbi(LCD_CS_PORT, LCD_CS);
-   LCD_Write_COM(0x37);
-   LCD_Write_DATA(scrollPosition >> 8);
-   LCD_Write_DATA(scrollPosition & 0xff);
+	cbi(LCD_CS_PORT, LCD_CS);
+	LCD_Write_COM(0x37);
+	LCD_Write_DATA(scrollPosition >> 8);
+	LCD_Write_DATA(scrollPosition & 0xff);
 	sbi(LCD_CS_PORT, LCD_CS);
 
 }

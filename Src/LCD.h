@@ -1,49 +1,56 @@
 
-// For Adafruit's ATMega32u4 Breakout Board
+// For NUCLEO-F411RE
 // we use the following ports:
 
-// Port A0:A7  ->    LCD_DB0:LCD_DB7
-// Port C0:C7  ->    LCD_DB8:LCD_DB15
+// IMPORTANT!!
+// In order to be able to use PORTC bits 14 and 15, resistors R34 and R36 need to be removed,
+// and bridges SB48 and SB49 need to be closed, all this to fully disconnect LSE (low-speed clock)
+// and connect pins to external connector.
 
-// Port B4     ->    LCD_RST
-// Port B5     ->    LCD_RS
-// Port B6     ->    LCD_WR
-// Port B7     ->    LCD_RD
-// Port B8     ->    LCD_CS
+// Port PC0:PC15   	->    LCD_DB0:LCD_DB15
 
-#include "gpio.h"
+// Port PA6			->    LCD_RST
+// Port PA7			->    LCD_CS
+// Port PA0			->    LCD_RD
+// Port PA1       	->    LCD_WR
+// Port PA4       	->    LCD_RS
 
-#define LCD_LDATA_PORT (GPIOA->ODR)
-#define LCD_HDATA_PORT (GPIOC->ODR)
 
-#define LCD_RST_PORT LCD_RST_GPIO_Port
-#define LCD_RST   	 LCD_RST_Pin
+#include "stm32f4xx_hal.h"
 
-#define LCD_RS_PORT  LCD_RS_GPIO_Port
-#define LCD_RS    	 LCD_RS_Pin
+#define LCD_DATA_PORT 	(GPIOC->ODR)
 
-#define LCD_WR_PORT  LCD_WR_GPIO_Port
-#define LCD_WR    	 LCD_WR_Pin
+#define LCD_RST_PORT   	LCD_RST_GPIO_Port
+#define LCD_RST        	LCD_RST_Pin
 
-#define LCD_RD_PORT  LCD_RD_GPIO_Port
-#define LCD_RD    	 LCD_RD_Pin
+#define LCD_CS_PORT  	LCD_CS_GPIO_Port
+#define LCD_CS			LCD_CS_Pin
 
-#define LCD_CS_PORT  LCD_CS_GPIO_Port
-#define LCD_CS    	 LCD_CS_Pin
+#define LCD_RD_PORT  	LCD_RD_GPIO_Port
+#define LCD_RD    		LCD_RD_Pin
+
+#define LCD_WR_PORT  	LCD_WR_GPIO_Port
+#define LCD_WR    		LCD_WR_Pin
+
+#define LCD_RS_PORT  	LCD_RS_GPIO_Port
+#define LCD_RS    		LCD_RS_Pin
+
 
 // Macros for setting and clearing ports
-#define sbi(PORT, PIN) HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_SET);
-#define cbi(PORT, PIN) HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_RESET);
-// #define cbi(PORT, BIT) (PORT)->BSRR=(uint32_t)BIT << 16U;
-// #define sbi(PORT, BIT) (PORT)->BSRR=(uint32_t)BIT;
+// #define sbi(PORT, PIN) HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_SET);
+// #define cbi(PORT, PIN) HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_RESET);
+
+// These implementations have less overhead (run faster) than the ones above
+#define sbi(PORT, BIT) (PORT)->BSRR=(uint32_t)BIT;
+#define cbi(PORT, BIT) (PORT)->BSRR=(uint32_t)BIT << 16U;
+
+#define pulse_low(PORT, BIT) cbi(PORT, BIT); sbi(PORT, BIT);
 
 #define swap(type, i, j) {type t = i; i = j; j = t;}
 
-#define pulse_low(PORT, BIT) cbi(PORT, BIT); _delay_ms(1); sbi(PORT, BIT);
-
-// #define fontbyte(x) pgm_read_byte(&current_font.font[x])
-
 #define _delay_ms(DELAY)   HAL_Delay(DELAY);
+
+#define fontbyte(x) pgm_read_byte(&current_font.font[x])
 
 #define LEFT 0
 #define RIGHT 9999
@@ -119,8 +126,9 @@ void setColor(uint16_t color);
 void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 void drawHLine(uint16_t x, uint16_t y, uint16_t l);
 void drawVLine(uint16_t x, uint16_t y, uint16_t l);
-// void setCharXY(uint16_t x, uint16_t y);
+void setCharXY(uint16_t x, uint16_t y);
 // int putChar(char c, FILE *stream);
+// int putChar(char c);
 // void printChar(char c, uint16_t x, uint16_t y);
 // void setFont(uint8_t *font);
 // void print(char *st, uint16_t x, uint16_t y);

@@ -36,6 +36,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
+#include <math.h>
 #include "LCD.h"
 /* USER CODE END Includes */
 
@@ -79,49 +80,119 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
 
-  for(uint8_t x = 0; x<100; x++)
+  orientation=LANDSCAPE;
+
+  UTFT_init();
+
+  UTFT_initLCD(orientation);
+  setFrontColor(0, 0, 0);
+  setBackColor(255, 255, 255);
+
+  uint16_t colors[] = {
+    VGA_BLACK,
+    VGA_WHITE,
+    VGA_RED,
+    VGA_GREEN,
+    VGA_BLUE,
+    VGA_SILVER,
+    VGA_GRAY,
+    VGA_MAROON,
+    VGA_YELLOW,
+    VGA_OLIVE,
+    VGA_LIME,
+    VGA_AQUA,
+    VGA_TEAL,
+    VGA_NAVY,
+    VGA_FUCHSIA,
+    VGA_PURPLE,
+  };
+
+  uint16_t color = 0;
+
+  for (color = 0; color < sizeof(colors)/sizeof(colors[0]); color++)
   {
-    HAL_GPIO_TogglePin(LCD_DB5_GPIO_Port, LCD_DB5_Pin);
-    HAL_Delay(50);
+    fillScreen(colors[color]);
+    _delay_ms(200);
   }
 
-   orientation=LANDSCAPE;
+  clrScr();
 
-   UTFT_init();
+  // setFont(SmallFont);
 
-   UTFT_initLCD(orientation);
-   setFrontColor(0, 0, 0);
-   setBackColor(255, 255, 255);
+  // Clear the screen and draw the frame
 
-   uint16_t colors[] = {
-      VGA_BLACK,
-      VGA_WHITE,
-      VGA_RED,
-      VGA_GREEN,
-      VGA_BLUE,
-      VGA_SILVER,
-      VGA_GRAY,
-      VGA_MAROON,
-      VGA_YELLOW,
-      VGA_OLIVE,
-      VGA_LIME,
-      VGA_AQUA,
-      VGA_TEAL,
-      VGA_NAVY,
-      VGA_FUCHSIA,
-      VGA_PURPLE,
-   };
+  // Draw crosshairs
+  setFrontColor(0, 0, 255);
+  setBackColor(0, 0, 0);
+  drawLine(239, 15, 239, 255);
+  drawLine(1, 135, 478, 135);
+  for (int i=9; i<470; i+=10)
+    drawLine(i, 133, i, 138);
+  for (int i=15; i<256; i+=10)
+    drawLine(237, i, 241, i);
+
+  // Draw sin-, cos- and tan-lines
+  setFrontColor(0,255,255);
+  // print("Sin", 5, 15);
+  for (int i=1; i<478; i++)
+  {
+    drawPixel(i,135+(sin(((i*1.13)*3.14)/180)*95));
+  }
+
+  setFrontColor(255,0,0);
+  // print("Cos", 5, 27);
+  for (int i=1; i<478; i++)
+  {
+    drawPixel(i,135+(cos(((i*1.13)*3.14)/180)*95));
+  }
+
+  setFrontColor(255,255,0);
+  // print("Tan", 5, 39);
+  for (int i=1; i<478; i++)
+  {
+    drawPixel(i,135+(tan(((i*1.13)*3.14)/180)));
+  }
+
+  _delay_ms(1000);
+  clrScr();
+
+  // Draw crosshairs
+  setFrontColor(0, 0, 255);
+  setBackColor(0, 0, 0);
+  drawLine(239, 15, 239, 255);
+  drawLine(1, 135, 478, 135);
+  for (int i=9; i<470; i+=10)
+    drawLine(i, 133, i, 138);
+  for (int i=15; i<256; i+=10)
+    drawLine(237, i, 241, i);
+
+  // Draw a moving sinewave
+  int buf[478];
+  int x=1;
+  int y=1;
+  for (int i=1; i<(478*20); i++)
+  {
+    x++;
+    if (x==479)
+      x=1;
+    if (i>479)
+    {
+      if ((x==239)||(buf[x-1]==135))
+        setFrontColor(0,0,255);
+      else
+        setFrontColor(0,0,0);
+
+      drawPixel(x,buf[x-1]);
+    }
+    setFrontColor(255,0,0);
+    y=135+(sin(((i*1.65)*3.14)/180)*(90-(i / 100)));
+    drawPixel(x,y);
+    buf[x-1]=y;
+  }
+
+  _delay_ms(1000);
+
   /* USER CODE END 2 */
-
-   uint16_t color = 0;
-   while(1)
-   {
-      for (color = 0; color < sizeof(colors)/sizeof(colors[0]); color++)
-      {
-         fillScreen(colors[color]);
-         _delay_ms(2000);
-      }
-   }
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -157,9 +228,9 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 16;
-  RCC_OscInitStruct.PLL.PLLN = 336;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 84;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -171,11 +242,11 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     Error_Handler();
   }
