@@ -33,6 +33,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
@@ -77,8 +78,27 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_TIM2_Init();
 
   /* USER CODE BEGIN 2 */
+
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+
+  // for(uint32_t pulse = 0; pulse <= 100000; pulse+=100)
+  // {
+  //   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, pulse);
+  //   _delay_ms(10);
+  // }
+
+  // const int period = 100000;
+
+  // for (float arg = 0;;arg += 0.0001F)
+  // {
+  //     uint32_t pulseWidth = (period / 2) * (1 + sinf(arg));
+  //   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, pulseWidth);
+  // }
+
+
 
   orientation=LANDSCAPE;
 
@@ -136,21 +156,21 @@ int main(void)
   // print("Sin", 5, 15);
   for (int i=1; i<478; i++)
   {
-    drawPixel(i,135+(sin(((i*1.13)*3.14)/180)*95));
+    drawPixel(i,135+(sinf(((i*1.13)*3.14)/180)*95));
   }
 
   setFrontColor(255,0,0);
   // print("Cos", 5, 27);
   for (int i=1; i<478; i++)
   {
-    drawPixel(i,135+(cos(((i*1.13)*3.14)/180)*95));
+    drawPixel(i,135+(cosf(((i*1.13)*3.14)/180)*95));
   }
 
   setFrontColor(255,255,0);
   // print("Tan", 5, 39);
   for (int i=1; i<478; i++)
   {
-    drawPixel(i,135+(tan(((i*1.13)*3.14)/180)));
+    drawPixel(i,135+(tanf(((i*1.13)*3.14)/180)));
   }
 
   _delay_ms(1000);
@@ -185,7 +205,7 @@ int main(void)
       drawPixel(x,buf[x-1]);
     }
     setFrontColor(255,0,0);
-    y=135+(sin(((i*1.65)*3.14)/180)*(90-(i / 100)));
+    y=135+(sinf(((i*1.65)*3.14)/180)*(90-(i / 100)));
     drawPixel(x,y);
     buf[x-1]=y;
   }

@@ -24,6 +24,8 @@ env['CPPPATH'] = [
 # compiler flags
 env['CCFLAGS'] = [
     '-mcpu=cortex-m4',
+    '-mfpu=fpv4-sp-d16',
+    '-mfloat-abi=hard',
     '-mthumb',
     '-O2',
     '-fsigned-char',
@@ -42,11 +44,10 @@ env['ASFLAGS'] = [
 
 # linker flags
 env['LINKFLAGS'] = [
-    '-mthumb',
     '-mcpu=cortex-m4',
-    # no support for FPU yet
-    # '-mfpu=fpv4-sp-d16',
-    # '-mfloat-abi=softfp',
+    '-mfpu=fpv4-sp-d16',
+    '-mfloat-abi=hard',
+    '-mthumb',
     '-specs=nano.specs',
     '-TSTM32F411RETx_FLASH.ld',
     '-lc',
@@ -70,6 +71,7 @@ elf = env.Program(
         'Src/LCD.c',
         'Src/main.c',
         'Src/gpio.c',
+        'Src/tim.c',
         'Src/stm32f4xx_hal_msp.c',
         'Src/stm32f4xx_it.c',
         'Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c',
@@ -85,6 +87,8 @@ elf = env.Program(
         'Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c',
         'Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c',
         'Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c',
+        'Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c',
+        'Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c',
     ]
 )
 
